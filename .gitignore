@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/pluto
+pluto.so
+pluto.dylib
+pluto.dll
+pluto.a
+pluto.lib
+pluto-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
