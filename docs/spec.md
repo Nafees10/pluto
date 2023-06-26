@@ -5,7 +5,11 @@ Pluto Templates are written as regular html files:
 ```html
 <if loggedIn> <!-- if loggedIn is defined -->
 	<div class="message"> You are logged in </div>
-</if> <!-- no support for else -->
+</if><elif banned>
+	<div class="warning"> You are banned </div>
+</elif><else>
+	<div class="warning"> I dont know </div>
+</else>
 <table>
 	<tr>
 		<th> Name </th>
@@ -40,15 +44,15 @@ a key is defined in the values dictionary.
 
 `<if NAME>` will check if "NAME" is present in the values dictionary.
 
-The if tag can be extended by the `<else>` and the `<elseif>` tags:
+The if tag can be extended by the `<else>` and the `<elif>` tags:
 
 ```html
 <if SOMETHING>
 	<p> SOMETHING is defined </p>
 </if>
-<elseif SOMETHINGELSE>
+<elif SOMETHINGELSE>
 	<p> SOMETHINGESLE is defined </p>
-</elseif>
+</elif>
 <else>
 	<p> nothing was defined </p>
 </else>

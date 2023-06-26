@@ -15,3 +15,5 @@ Usage:
 	pluto --help	Show this text`;
 
 public enum FILE_EXT = ".pluto";
+
+public static immutable dstring[] TAGS = ["if", "else", "elif", "for", "pluto"];

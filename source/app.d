@@ -26,5 +26,11 @@ int main(string[] args){
 	string outFilename = filename.chomp(".pluto") ~ ".plt";
 	if (args.length > 2)
 		outFilename = args[2];
+
+	if (!exists(filename) || !isFile(filename)){
+		stderr.writefln!"File %s does not exist or is not a file"(filename);
+		return 1;
+	}
+
 	return 0;
 }
