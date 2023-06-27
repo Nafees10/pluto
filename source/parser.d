@@ -141,7 +141,8 @@ private Unit[] parseUnits(dstring str, ref uint i){
 			auto tagName = _parseTagName(str, i);
 			if (TAGS.canFind(tagName.asLowerCase.array)){
 				// end this unit here
-				ret ~= Unit.createStatic(str[start .. ind].to!string);
+				if (start < ind)
+					ret ~= Unit.createStatic(str[start .. ind].to!string);
 				if (ending){
 					// skip to >
 					while (i < str.length && str[i] != '>') i ++;
@@ -166,7 +167,8 @@ private Unit[] parseUnits(dstring str, ref uint i){
 				i --; continue;
 			}
 			// end this unit
-			ret ~= Unit.createStatic(str[start .. ind].to!string);
+			if (start < ind)
+				ret ~= Unit.createStatic(str[start .. ind].to!string);
 			ret ~= Unit.createInterpolate(interp.to!string);
 			start = i;
 			i --; continue;
