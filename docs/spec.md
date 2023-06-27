@@ -15,7 +15,7 @@ Pluto Templates are written as regular html files:
 		<th> Name </th>
 		<th> Action </th>
 	</tr>
-	<for name : names> <!-- translates to a foreach loop -->
+	<for name names> <!-- translates to a foreach loop -->
 		<tr>
 			<td> {name} </td> <!-- interpolation -->
 			<td>
