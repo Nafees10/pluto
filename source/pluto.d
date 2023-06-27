@@ -80,7 +80,7 @@ private struct Unit{
 		return ret;
 	}
 
-	static Unit createElseIf(dstring condition){
+	static Unit createElif(dstring condition){
 		Unit ret;
 		ret._type = Type.ElseIf;
 		ret._staticText = condition;
@@ -96,64 +96,6 @@ private struct Unit{
 	}
 }
 
-/// Returns: tag name, given dstring starting with opening angle bracket
-dstring tagName(dstring str){
-	if (str[0] != '<')
-		return null;
-	foreach (i, ch; str){
-		if (ch.isWhite)
-			return str[0 .. i];
-	}
-	return str;
-}
-
-/// Reads text until a pluto appropriate substring is found
-/// Pluto appropriate substring would be:
-/// * start of a pluto appropriate tag
-/// * interpolation {}
-/// * end of a pluto appropriate tag
-///
-/// Returns: string slice till before appropriate substring, or null if at start
-Unit[] readTillAppropriate(dstring str, ref uint i){
-	Unit[] ret;
-	for (; i < str.length; i ++){
-		const dchar c = str[i];
-		if (c == '<'){
-			bool ending = i + 1 < str.length && str[i + 1] == '/';
-			if (ending)
-				i ++;
-			dstring tagName = str.tagName.asLowerCase.array;
-			bool isAppropriate = TAGS.canFind(tagName);
-			if (!isAppropriate)
-				continue;
-			i += tagName.length;
-			if (ending){
-				// TODO continue from here
-			}else{
-				if (isAppropriate)
-					ret ~= Unit.createStatic(str[0 .. i]);
-				ret ~= readTag(str, tagName, i);
-				i --;
-			}
-		}
-	}
-
-	return ret;
-}
-
-/// Reads a Pluto appopriate tag
-Unit readTag(dstring str, dstring tagName, uint i){
-	if (!TAGS.canFind(tagName))
-		throw new Exception("Not an appropriate tag");
-	switch (tagName){
-
-	}
-}
-
-/// Reads a for tag
-
-/// Reads an if tag
-
 /// Parser
 public struct Parser{
 private:
@@ -162,11 +104,113 @@ private:
 	bool _unitValid;
 	Unit _unit;
 
-	Unit _parse(){
-		Unit ret;
-		for (uint i = _seek; i < _source.length; i ++){
-
+	Unit[] _parse(ref uint i){
+		Unit[] ret;
+		for (; i < _source.length; i ++){
+			// TODO
 		}
+		return ret;
+	}
+
+	/// Returns: tag name, given dstring starting with opening angle bracket
+	dstring _parseTagName(dstring str, uint i){
+		if (str[0] != '<')
+			return null;
+		// skip whitespace
+		for (; i < str.length; i ++){
+			const dchar ch = str[i];
+			if (ch.isWhite)
+				return str[0 .. i];
+		}
+		i = cast(uint)str.length;
+		return str;
+	}
+
+	/// Reads a Pluto appopriate tag. Index i must be pointing to after the tagName
+	Unit _parseApprTag(dstring str, dstring tagName, ref uint i){
+		switch (tagName){
+			case "for":
+				return _parseForTag(str, i);
+			case "if":
+				return _parseIfTag(str, i);
+			case "else":
+				return _parseElseTag(str, i);
+			case "elif":
+				return _parseElifTag(str, i);
+			default:
+				throw new Exception("Not an appropriate tag");
+		}
+	}
+
+	/// Reads a for tag. index i must be at character after `<for`
+	Unit _parseForTag(dstring str, ref uint i){
+		dstring iterator, container;
+		// skip till non whitespace
+		while (i < str.length && str[i].isWhite) ++i;
+		uint start = i;
+		while (i < str.length && !str[i].isWhite) ++i;
+		iterator = str[start .. i];
+
+		while (i < str.length && str[i].isWhite) ++i;
+		start = i;
+		while (i < str.length && !str[i].isWhite) ++i;
+		container = str[start .. i];
+
+		// skip till >
+		while (i < str.length && str[i] != '>') ++i;
+		if (iterator is null || container is null || i == str.length)
+			throw new Exception("Invalid for tag");
+
+		auto ret = Unit.createFor(iterator, container);
+		ret.subUnits = _parse(i);
+		return ret;
+	}
+
+	/// Reads an if tag
+	Unit _parseIfTag(dstring str, ref uint i){
+		dstring condition;
+		while (i < str.length && str[i].isWhite) ++i;
+		uint start = i;
+		while (i < str.length && !str[i].isWhite) ++i;
+		condition = str[start .. i];
+
+		// skip till >
+		while (i < str.length && str[i] != '>') ++i;
+		if (condition is null || i == str.length)
+			throw new Exception("Invalid if tag");
+
+		auto ret = Unit.createIf(condition);
+		ret.subUnits = _parse(i);
+		return ret;
+	}
+
+	/// Reads an else tag
+	Unit _parseElseTag(dstring str, ref uint i){
+		// skip till >
+		while (i < str.length && str[i] != '>') ++i;
+		if (i == str.length)
+			throw new Exception("Invalid else tag");
+
+		auto ret = Unit.createElse();
+		ret.subUnits = _parse(i);
+		return ret;
+	}
+
+	/// Reads an elif tag
+	Unit _parseElifTag(dstring str, ref uint i){
+		dstring condition;
+		while (i < str.length && str[i].isWhite) ++i;
+		uint start = i;
+		while (i < str.length && !str[i].isWhite) ++i;
+		condition = str[start .. i];
+
+		// skip till >
+		while (i < str.length && str[i] != '>') ++i;
+		if (condition is null || i == str.length)
+			throw new Exception("Invalid elif tag");
+
+		auto ret = Unit.createElif(condition);
+		ret.subUnits = _parse(i);
 		return ret;
 	}
 
@@ -183,7 +227,7 @@ public:
 	Unit front(){
 		if (!_unitValid && !empty){
 			_unitValid = true;
-			_parse;
+			_parse(_seek);
 		}
 		return _unit;
 	}
