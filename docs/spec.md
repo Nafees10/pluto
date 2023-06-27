@@ -35,7 +35,7 @@ Pluto Templates are written as regular html files:
 It is allowed to write regular plutonium code inside `{}` that evaluates to
 strings.
 
-Interpolation will occur inside double quotes.
+Interpolation will not occur inside single quotes.
 
 Only alphanumeric characters are allowed inside `{..}`. If this condition is
 not met, it is treated as part of the html.
