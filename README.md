@@ -7,7 +7,7 @@ A simple template engine for the
 
 Take a look at `docs/spec.md` for the specification.
 
-### Building Pluto
+## Building Pluto
 
 You will need the following tools for building Pluto:
 
@@ -29,7 +29,7 @@ any directory in your `$PATH` like:
 sudo cp pluto /usr/bin # on linux
 ```
 
-### Using Pluto
+## Using Pluto
 
 Pluto works by taking template files, and generating plutonium code files that
 contain a render function.
