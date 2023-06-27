@@ -3,7 +3,7 @@
 Pluto Templates are written as regular html files:
 
 ```html
-<if loggedIn> <!-- if loggedIn is defined -->
+<if loggedIn> <!-- if loggedIn is defined in dictionary -->
 	<div class="message"> You are logged in </div>
 </if><elif banned>
 	<div class="warning"> You are banned </div>
@@ -61,5 +61,14 @@ The if tag can be extended by the `<else>` and the `<elif>` tags:
 ## For tag
 
 the `<for>` tag will iterate over an array value in the values dictionary.
-See example at top.
 
+Nested for is also possible:
+```html
+<table>
+	<for course courses>
+		<for section course>
+			<tr><td>{section}</td></tr>
+		</for>
+	</for>
+</table>
+```
