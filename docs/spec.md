@@ -30,10 +30,7 @@ Pluto Templates are written as regular html files:
 
 ## Interpolation:
 
-`{}` is used for interpolation. Interpolation is only supported on strings.
-
-It is allowed to write regular plutonium code inside `{}` that evaluates to
-strings.
+`{}` is used for interpolation.
 
 Interpolation will not occur inside single quotes.
 
