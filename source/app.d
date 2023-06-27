@@ -2,9 +2,11 @@ import std.stdio,
 			 std.algorithm,
 			 std.path,
 			 std.file,
-			 std.string;
+			 std.string,
+			 std.conv;
 
 import consts;
+import pluto;
 
 int main(string[] args){
 	if (args.length < 2){
@@ -31,6 +33,11 @@ int main(string[] args){
 		stderr.writefln!"File %s does not exist or is not a file"(filename);
 		return 1;
 	}
+
+	dstring fcontent = filename.readText.to!dstring;
+	fcontent.writeln;
+	auto units = parse(fcontent);
+	writeln(units);
 
 	return 0;
 }
