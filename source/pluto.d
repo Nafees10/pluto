@@ -267,7 +267,7 @@ Unit _parseIfTag(dstring str, ref uint i){
 	dstring condition;
 	while (i < str.length && str[i].isWhite) ++i;
 	uint start = i;
-	while (i < str.length && !str[i].isWhite) ++i;
+	while (i < str.length && !str[i].isWhite && str[i] != '>') ++i;
 	condition = str[start .. i];
 
 	// skip till >
@@ -297,7 +297,7 @@ Unit _parseElifTag(dstring str, ref uint i){
 	dstring condition;
 	while (i < str.length && str[i].isWhite) ++i;
 	uint start = i;
-	while (i < str.length && !str[i].isWhite) ++i;
+	while (i < str.length && !str[i].isWhite && str[i] != '>') ++i;
 	condition = str[start .. i];
 
 	// skip till >
