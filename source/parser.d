@@ -1,4 +1,4 @@
-module pluto;
+module parser;
 
 import std.stdio,
 			 std.file,
@@ -198,7 +198,9 @@ dstring _isInterpolation(dstring str, ref uint i){
 
 /// Returns: tag name, given dstring starting with opening angle bracket
 dstring _parseTagName(dstring str, ref uint i){
-	if (str[i] != '<' && str[i] != '/')
+	if (str[i] != '<' && (
+				i == 0 || str[i - 1 .. i + 1] != "</"
+				))
 		return null;
 	i ++;
 	// skip whitespace

@@ -6,7 +6,7 @@ import std.stdio,
 			 std.conv;
 
 import consts;
-import pluto;
+import parser;
 
 int main(string[] args){
 	if (args.length < 2){
