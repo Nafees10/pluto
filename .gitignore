@@ -8,6 +8,8 @@ pluto.dll
 pluto.a
 pluto.lib
 pluto-test-*
+sample.pluto
+sample.plt
 *.exe
 *.pdb
 *.o
