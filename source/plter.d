@@ -9,7 +9,7 @@ import std.stdio,
 import parser : Unit;
 
 public string toPltFunction(string name, Unit[] units){
-	return "function " ~ name ~ "(map)" ~ toPltBlock(units);
+	return "function " ~ name ~ "(var map)" ~ toPltBlock(units);
 }
 
 // escapes double quotes and backslashes
@@ -84,8 +84,8 @@ private string elifToPlt(Unit unit, string[] definitions){
 
 private string forToPlt(Unit unit, string[] definitions){
 	if (definitions.canFind(unit.container))
-		return "foreach (" ~ unit.iterator ~ " : " ~ unit.container ~ ")" ~
+		return "foreach (var " ~ unit.iterator ~ " : " ~ unit.container ~ ")" ~
 			toPltBlock(unit.subUnits, definitions ~ unit.iterator);
-	return "foreach (" ~ unit.iterator ~ " : map[\"" ~ unit.container ~ "\"])" ~
+	return "foreach (var " ~ unit.iterator ~ " : map[\"" ~ unit.container ~ "\"])" ~
 		toPltBlock(unit.subUnits, definitions ~ unit.iterator);
 }
