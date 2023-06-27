@@ -37,6 +37,9 @@ strings.
 
 Interpolation will occur inside double quotes.
 
+Only alphanumeric characters are allowed inside `{..}`. If this condition is
+not met, it is treated as part of the html.
+
 ## If tag
 
 the `<if>` tag can be used to write conditional code that appears only if
