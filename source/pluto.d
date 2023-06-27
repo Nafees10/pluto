@@ -112,8 +112,22 @@ private:
 		return ret;
 	}
 
+	/// Checks if an interpolation is, well, an interpolation, by checking if
+	/// characters inside are alphanumeric
+	///
+	/// Returns: true if valid
+	bool _isInterpolation(dstring str, ref uint i){
+		if (str[i] != '{' || i + 2 >= str.length || str[i + 1] == '}')
+			return false;
+		while (i < str.length && str[i].isAlphaNum) ++i;
+		if (i >= str.length || str[i] != '}')
+			return false;
+		i ++;
+		return true;
+	}
+
 	/// Returns: tag name, given dstring starting with opening angle bracket
-	dstring _parseTagName(dstring str, uint i){
+	dstring _parseTagName(dstring str, ref uint i){
 		if (str[0] != '<')
 			return null;
 		// skip whitespace
