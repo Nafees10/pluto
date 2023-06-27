@@ -247,9 +247,9 @@ Unit _parseForTag(dstring str, ref uint i){
 	while (i < str.length && !str[i].isWhite) ++i;
 	iterator = str[start .. i];
 
-	while (i < str.length && str[i].isWhite) ++i;
+	while (i < str.length && str[i].isWhite && str[i] != '>') ++i;
 	start = i;
-	while (i < str.length && !str[i].isWhite) ++i;
+	while (i < str.length && !str[i].isWhite && str[i] != '>') ++i;
 	container = str[start .. i];
 
 	// skip till >
