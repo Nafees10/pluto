@@ -1,9 +1,7 @@
 module parser;
 
 import std.stdio,
-			 std.file,
 			 std.string,
-			 std.utf,
 			 std.uni,
 			 std.array,
 			 std.algorithm,
