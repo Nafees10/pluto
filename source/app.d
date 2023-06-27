@@ -1,12 +1,14 @@
 import std.stdio,
 			 std.algorithm,
-			 std.path,
 			 std.file,
+			 std.path,
 			 std.string,
+			 std.uni,
 			 std.conv;
 
-import consts;
-import parser;
+import consts,
+			 parser,
+			 plter;
 
 int main(string[] args){
 	if (args.length < 2){
@@ -34,10 +36,30 @@ int main(string[] args){
 		return 1;
 	}
 
-	dstring fcontent = filename.readText.to!dstring;
-	fcontent.writeln;
+	string fcontent = filename.readText;
+	debug writeln(fcontent);
 	auto units = parse(fcontent);
-	writeln(units);
+	debug writeln(units);
 
+	string pltCode = toPltFunction(genFuncName(filename), units);
+	try{
+		std.file.write(outFilename, pltCode);
+	}catch (FileException e){
+		stderr.writeln("Failed to write to output file:\n", e.msg);
+		return 1;
+	}
 	return 0;
+}
+
+string genFuncName(string filename){
+	char[] base;
+	// remove all non alphanumeric
+	foreach (c; baseName(stripExtension(filename))){
+		if (isAlphaNum(c))
+			base ~= c;
+	}
+	if (base.length == 0)
+		return "render";
+	base[0] = cast(char)base[0].toUpper;
+	return cast(string)("render" ~ base);
 }
