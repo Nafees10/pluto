@@ -64,7 +64,7 @@ private string staticToPlt(Unit unit){
 
 private string interpolateToPlt(Unit unit, string[] definitions){
 	if (definitions.canFind(unit.val))
-		return "print(" ~ unit.val ~ ")";
+		return "print(" ~ unit.val ~ ")\n";
 	return  "print(map[\"" ~ unit.val ~ "\"])\n";
 }
 
