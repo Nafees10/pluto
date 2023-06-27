@@ -13,7 +13,7 @@ import consts;
 import utils.ds;
 
 /// A sinlge contiguous unit in the template
-private struct Unit{
+struct Unit{
 	enum Type{
 		Static,
 		Interpolate,
@@ -25,10 +25,10 @@ private struct Unit{
 
 	private Type _type;
 	private struct For{
-		dstring iterator, container;
+		string iterator, container;
 	}
 	private union{
-		dstring _staticText;
+		string _staticText;
 		For _for;
 	}
 
@@ -63,34 +63,34 @@ private struct Unit{
 	}
 
 	/// Static text, or value to interpolate, or if/elif's condition
-	@property dstring val() const pure {
+	@property string val() const pure {
 		return _staticText;
 	}
 
 	/// For loop iterator name
-	@property dstring iterator() const pure{
+	@property string iterator() const pure{
 		return _for.iterator;
 	}
 	/// For loop container name
-	@property dstring container() const pure{
+	@property string container() const pure{
 		return _for.container;
 	}
 
-	static Unit createStatic(dstring text){
+	static Unit createStatic(string text){
 		Unit ret;
 		ret._type = Type.Static;
 		ret._staticText = text;
 		return ret;
 	}
 
-	static Unit createInterpolate(dstring name){
+	static Unit createInterpolate(string name){
 		Unit ret;
 		ret._type = Type.Interpolate;
 		ret._staticText = name;
 		return ret;
 	}
 
-	static Unit createIf(dstring condition){
+	static Unit createIf(string condition){
 		Unit ret;
 		ret._type = Type.If;
 		ret._staticText = condition;
@@ -103,14 +103,14 @@ private struct Unit{
 		return ret;
 	}
 
-	static Unit createElif(dstring condition){
+	static Unit createElif(string condition){
 		Unit ret;
 		ret._type = Type.ElseIf;
 		ret._staticText = condition;
 		return ret;
 	}
 
-	static Unit createFor(dstring iterator, dstring container){
+	static Unit createFor(string iterator, string container){
 		Unit ret;
 		ret._type = Type.For;
 		ret._for.iterator = iterator;
@@ -119,12 +119,12 @@ private struct Unit{
 	}
 }
 
-Unit[] parse(dstring str){
+Unit[] parse(string str){
 	uint i;
-	return parseUnits(str, i);
+	return parseUnits(str.to!dstring, i);
 }
 
-Unit[] parseUnits(dstring str, ref uint i){
+private Unit[] parseUnits(dstring str, ref uint i){
 	Unit[] ret;
 	uint start = i;
 	for (; i < str.length; i ++){
@@ -141,7 +141,7 @@ Unit[] parseUnits(dstring str, ref uint i){
 			auto tagName = _parseTagName(str, i);
 			if (TAGS.canFind(tagName.asLowerCase.array)){
 				// end this unit here
-				ret ~= Unit.createStatic(str[start .. ind]);
+				ret ~= Unit.createStatic(str[start .. ind].to!string);
 				if (ending){
 					// skip to >
 					while (i < str.length && str[i] != '>') i ++;
@@ -166,14 +166,14 @@ Unit[] parseUnits(dstring str, ref uint i){
 				i --; continue;
 			}
 			// end this unit
-			ret ~= Unit.createStatic(str[start .. ind]);
-			ret ~= Unit.createInterpolate(interp);
+			ret ~= Unit.createStatic(str[start .. ind].to!string);
+			ret ~= Unit.createInterpolate(interp.to!string);
 			start = i;
 			i --; continue;
 		}
 	}
 	if (start + 1 < str.length)
-		ret ~= Unit.createStatic(str[start .. $]);
+		ret ~= Unit.createStatic(str[start .. $].to!string);
 
 	return ret;
 }
@@ -182,7 +182,7 @@ Unit[] parseUnits(dstring str, ref uint i){
 /// characters inside are alphanumeric
 ///
 /// Returns: name, or null
-dstring _isInterpolation(dstring str, ref uint i){
+private dstring _isInterpolation(dstring str, ref uint i){
 	if (str[i] != '{' || i + 2 >= str.length || str[i + 1] == '}')
 		return null;
 	i ++;
@@ -195,7 +195,7 @@ dstring _isInterpolation(dstring str, ref uint i){
 }
 
 /// Returns: tag name, given dstring starting with opening angle bracket
-dstring _parseTagName(dstring str, ref uint i){
+private dstring _parseTagName(dstring str, ref uint i){
 	if (str[i] != '<' && (
 				i == 0 || str[i - 1 .. i + 1] != "</"
 				))
@@ -213,7 +213,7 @@ dstring _parseTagName(dstring str, ref uint i){
 }
 
 /// Checks if current tag is a comment, if so, skips it
-bool _skipComment(dstring str, ref uint i){
+private bool _skipComment(dstring str, ref uint i){
 	if (i + 3 <= str.length || str[i .. i + 4] != "<!--")
 		return false;
 	i += 4; // skip opening
@@ -224,7 +224,7 @@ bool _skipComment(dstring str, ref uint i){
 }
 
 /// Reads a Pluto appopriate tag. Index i must be pointing to after the tagName
-Unit _parseApprTag(dstring str, dstring tagName, ref uint i){
+private Unit _parseApprTag(dstring str, dstring tagName, ref uint i){
 	switch (tagName){
 		case "for":
 			return _parseForTag(str, i);
@@ -240,7 +240,7 @@ Unit _parseApprTag(dstring str, dstring tagName, ref uint i){
 }
 
 /// Reads a for tag. index i must be at character after `<for`
-Unit _parseForTag(dstring str, ref uint i){
+private Unit _parseForTag(dstring str, ref uint i){
 	dstring iterator, container;
 	// skip till non whitespace
 	while (i < str.length && str[i].isWhite) ++i;
@@ -259,13 +259,13 @@ Unit _parseForTag(dstring str, ref uint i){
 	if (iterator is null || container is null || i == str.length)
 		throw new Exception("Invalid for tag");
 
-	auto ret = Unit.createFor(iterator, container);
+	auto ret = Unit.createFor(iterator.to!string, container.to!string);
 	ret.subUnits = parseUnits(str, i);
 	return ret;
 }
 
 /// Reads an if tag
-Unit _parseIfTag(dstring str, ref uint i){
+private Unit _parseIfTag(dstring str, ref uint i){
 	dstring condition;
 	while (i < str.length && str[i].isWhite) ++i;
 	uint start = i;
@@ -278,13 +278,13 @@ Unit _parseIfTag(dstring str, ref uint i){
 	if (condition is null || i == str.length)
 		throw new Exception("Invalid if tag");
 
-	auto ret = Unit.createIf(condition);
+	auto ret = Unit.createIf(condition.to!string);
 	ret.subUnits = parseUnits(str, i);
 	return ret;
 }
 
 /// Reads an else tag
-Unit _parseElseTag(dstring str, ref uint i){
+private Unit _parseElseTag(dstring str, ref uint i){
 	// skip till >
 	while (i < str.length && str[i] != '>') ++i;
 	i ++;
@@ -297,7 +297,7 @@ Unit _parseElseTag(dstring str, ref uint i){
 }
 
 /// Reads an elif tag
-Unit _parseElifTag(dstring str, ref uint i){
+private Unit _parseElifTag(dstring str, ref uint i){
 	dstring condition;
 	while (i < str.length && str[i].isWhite) ++i;
 	uint start = i;
@@ -310,7 +310,7 @@ Unit _parseElifTag(dstring str, ref uint i){
 	if (condition is null || i == str.length)
 		throw new Exception("Invalid elif tag");
 
-	auto ret = Unit.createElif(condition);
+	auto ret = Unit.createElif(condition.to!string);
 	ret.subUnits = parseUnits(str, i);
 	return ret;
 }
