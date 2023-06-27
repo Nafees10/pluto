@@ -135,11 +135,11 @@ Unit[] parseUnits(dstring str, ref uint i){
 			if (_skipComment(str, i))
 				continue;
 			bool ending = false;
+			const auto ind = i;
 			if (i + 1 < str.length && str[i + 1] == '/'){
 				ending = true;
 				i ++;
 			}
-			const auto ind = i;
 			auto tagName = _parseTagName(str, i);
 			if (TAGS.canFind(tagName.asLowerCase.array)){
 				// end this unit here
@@ -147,6 +147,7 @@ Unit[] parseUnits(dstring str, ref uint i){
 				if (ending){
 					// skip to >
 					while (i < str.length && str[i] != '>') i ++;
+					i ++;
 					return ret;
 				}
 				ret ~= _parseApprTag(str, tagName, i);
@@ -197,7 +198,7 @@ dstring _isInterpolation(dstring str, ref uint i){
 
 /// Returns: tag name, given dstring starting with opening angle bracket
 dstring _parseTagName(dstring str, ref uint i){
-	if (str[i] != '<')
+	if (str[i] != '<' && str[i] != '/')
 		return null;
 	i ++;
 	// skip whitespace
@@ -254,6 +255,7 @@ Unit _parseForTag(dstring str, ref uint i){
 
 	// skip till >
 	while (i < str.length && str[i] != '>') ++i;
+	i ++;
 	if (iterator is null || container is null || i == str.length)
 		throw new Exception("Invalid for tag");
 
@@ -272,6 +274,7 @@ Unit _parseIfTag(dstring str, ref uint i){
 
 	// skip till >
 	while (i < str.length && str[i] != '>') ++i;
+	i ++;
 	if (condition is null || i == str.length)
 		throw new Exception("Invalid if tag");
 
@@ -284,6 +287,7 @@ Unit _parseIfTag(dstring str, ref uint i){
 Unit _parseElseTag(dstring str, ref uint i){
 	// skip till >
 	while (i < str.length && str[i] != '>') ++i;
+	i ++;
 	if (i == str.length)
 		throw new Exception("Invalid else tag");
 
@@ -302,6 +306,7 @@ Unit _parseElifTag(dstring str, ref uint i){
 
 	// skip till >
 	while (i < str.length && str[i] != '>') ++i;
+	i ++;
 	if (condition is null || i == str.length)
 		throw new Exception("Invalid elif tag");
 
