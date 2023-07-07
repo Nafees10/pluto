@@ -2,6 +2,7 @@ module plter;
 
 import std.stdio,
 			 std.string,
+			 std.array,
 			 std.uni,
 			 std.algorithm,
 			 std.conv;
@@ -29,63 +30,69 @@ private string escapeStr(string str){
 	return ret;
 }
 
-private string toPltBlock(Unit[] units, string[] definitions = null){
+private string toPltBlock(Unit[] units, string[] definitions = null,
+		uint indent = 0){
+	const string indentStr = "\t".replicate(indent);
 	string code = "{\n";
 	foreach (unit; units){
 		switch (unit.type){
 			case Unit.Type.Static:
-				code ~= staticToPlt(unit);
+				code ~= staticToPlt(unit, indent + 1);
 				break;
 			case Unit.Type.Interpolate:
-				code ~= interpolateToPlt(unit, definitions);
+				code ~= interpolateToPlt(unit, definitions, indent + 1);
 				break;
 			case Unit.Type.If:
-				code ~= ifToPlt(unit, definitions);
+				code ~= ifToPlt(unit, definitions, indent + 1);
 				break;
 			case Unit.Type.Else:
-				code ~= elseToPlt(unit, definitions);
+				code ~= elseToPlt(unit, definitions, indent + 1);
 				break;
 			case Unit.Type.ElseIf:
-				code ~= elifToPlt(unit, definitions);
+				code ~= elifToPlt(unit, definitions, indent + 1);
 				break;
 			case Unit.Type.For:
-				code ~= forToPlt(unit, definitions);
+				code ~= forToPlt(unit, definitions, indent + 1);
 				break;
 			default:
 				throw new Exception("invalid unit type");
 		}
 	}
-	return code ~ "}\n";
+	return code ~ indentStr ~ "}\n";
 }
 
-private string staticToPlt(Unit unit){
-	return "print(\"" ~ escapeStr(unit.val) ~ "\")\n";
+private string staticToPlt(Unit unit, uint indent = 0){
+	return "\t".replicate(indent) ~ "print(\"" ~ escapeStr(unit.val) ~ "\")\n";
 }
 
-private string interpolateToPlt(Unit unit, string[] definitions){
+private string interpolateToPlt(Unit unit, string[] definitions,
+		uint indent = 0){
 	if (definitions.canFind(unit.val))
-		return "print(" ~ unit.val ~ ")\n";
-	return  "print(map[\"" ~ unit.val ~ "\"])\n";
+		return "\t".replicate(indent) ~ "print(" ~ unit.val ~ ")\n";
+	return  "\t".replicate(indent) ~ "print(map[\"" ~ unit.val ~ "\"])\n";
 }
 
-private string ifToPlt(Unit unit, string[] definitions){
-	return "if (map.hasKey(\"" ~ unit.val ~ "\"))" ~
-		toPltBlock(unit.subUnits, definitions);
+private string ifToPlt(Unit unit, string[] definitions, uint indent = 0){
+	return "\t".replicate(indent) ~ "if (map.hasKey(\"" ~ unit.val ~ "\"))" ~
+		toPltBlock(unit.subUnits, definitions, indent + 1);
 }
 
-private string elseToPlt(Unit unit, string[] definitions){
-	return "else" ~ toPltBlock(unit.subUnits, definitions);
+private string elseToPlt(Unit unit, string[] definitions, uint indent = 0){
+	return "\t".replicate(indent) ~ "else" ~
+		toPltBlock(unit.subUnits, definitions, indent + 1);
 }
 
-private string elifToPlt(Unit unit, string[] definitions){
-	return "else if (map.hasKey(\"" ~ unit.val ~ "\"))" ~
-		toPltBlock(unit.subUnits, definitions);
+private string elifToPlt(Unit unit, string[] definitions, uint indent = 0){
+	return "\t".replicate(indent) ~ "else if (map.hasKey(\"" ~ unit.val ~ "\"))"
+		~ toPltBlock(unit.subUnits, definitions, indent + 1);
 }
 
-private string forToPlt(Unit unit, string[] definitions){
+private string forToPlt(Unit unit, string[] definitions, uint indent = 0){
 	if (definitions.canFind(unit.container))
-		return "foreach (var " ~ unit.iterator ~ " : " ~ unit.container ~ ")" ~
-			toPltBlock(unit.subUnits, definitions ~ unit.iterator);
-	return "foreach (var " ~ unit.iterator ~ " : map[\"" ~ unit.container ~ "\"])" ~
-		toPltBlock(unit.subUnits, definitions ~ unit.iterator);
+		return "\t".replicate(indent) ~ "foreach (var " ~ unit.iterator ~ " : " ~
+				unit.container ~ ")" ~ toPltBlock(unit.subUnits,
+					definitions ~ unit.iterator, indent + 1);
+	return "\t".replicate(indent) ~ "foreach (var " ~ unit.iterator ~
+		" : map[\"" ~ unit.container ~ "\"])" ~
+		toPltBlock(unit.subUnits, definitions ~ unit.iterator, indent + 1);
 }
