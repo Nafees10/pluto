@@ -1,6 +1,7 @@
 name "pluto"
-description "A template engine for plutonium language"
+description "A simple template engine"
 authors "Nafees"
 copyright "Copyright © 2023, Nafees"
 license "MIT"
+//targetType "library"
 dependency "utils" version="~>0.7.0"
